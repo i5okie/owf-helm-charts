@@ -1,6 +1,6 @@
 # AcaPy
 
-![Version: 0.2.1](https://img.shields.io/badge/Version-0.2.1-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 1.3.1](https://img.shields.io/badge/AppVersion-1.3.1-informational?style=flat-square)
+![Version: 0.2.2](https://img.shields.io/badge/Version-0.2.2-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 1.3.1](https://img.shields.io/badge/AppVersion-1.3.1-informational?style=flat-square)
 
 A Helm chart to deploy A Cloud Agent - Python.
 
@@ -109,6 +109,9 @@ API Secret keys expected (unless overridden via secretKeys):
 Seed Secret keys expected:
   seed          (32 char wallet seed when wallet-local-did=true or deterministic DID needed)
 
+Note: In multitenant mode the base wallet should not use a seed. You can explicitly disable the
+seed secret and env var by setting secrets.seed.enabled=false.
+
 | Name                                   | Description                                                                                              | Value         |
 | -------------------------------------- | -------------------------------------------------------------------------------------------------------- | ------------- |
 | `secrets.api.retainOnUninstall`        | When true, adds helm.sh/resource-policy: keep to generated api secret                                    | `true`        |
@@ -117,6 +120,7 @@ Seed Secret keys expected:
 | `secrets.api.secretKeys.jwtKey`        | Key in the API secret holding the multitenant JWT signing secret.                                        | `jwt`         |
 | `secrets.api.secretKeys.walletKey`     | Key in the API secret holding the wallet key.                                                            | `walletKey`   |
 | `secrets.api.secretKeys.webhookapiKey` | Key in the API secret holding the webhook API key (used when embedding in webhook-url).                  | `webhookapi`  |
+| `secrets.seed.enabled`                 | Enable creation and mounting of the seed secret as ACAPY_WALLET_SEED.                                    | `true`        |
 | `secrets.seed.retainOnUninstall`       | When true, adds helm.sh/resource-policy: keep to generated seed secret                                   | `true`        |
 | `secrets.seed.existingSecret`          | Name of an existing Secret providing the wallet seed. If set, the chart will NOT create the seed secret. | `""`          |
 | `secrets.seed.secretKeys.seed`         | Key in the seed secret holding the wallet seed value.                                                    | `seed`        |
