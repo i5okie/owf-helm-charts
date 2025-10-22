@@ -1,3 +1,8 @@
+## 0.5.0 (2025-10-22)
+
+### Features
+
+* Add additional values and secrets ([#42](https://github.com/i5okie/owf-helm-charts/issues/42)) ([86ee7b9](https://github.com/i5okie/owf-helm-charts/commit/86ee7b946462389652141c57f69401d462d1226a))
 ## 0.4.0 (2025-10-22)
 
 ### Features
