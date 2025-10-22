@@ -64,7 +64,6 @@ while IFS=$'\t' read -r sha subject body; do
       ;;
     chore*)
       chore_msgs+=("${msg}")
-      patch=true
       ;;
     docs*)
       docs_msgs+=("${msg}")
