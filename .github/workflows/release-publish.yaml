@@ -83,7 +83,28 @@ jobs:
       - name: Build dependencies
         run: |
           chart='${{ steps.info.outputs.chart }}'
-          helm dependency build "charts/$chart" || true
+
+          # Add Helm repos from chart dependencies
+          yq '.dependencies // [] | .[] | .repository' "charts/$chart/Chart.yaml" | sort | uniq | while IFS= read -r repo; do
+            if [ -n "$repo" ] && [ "$repo" != "null" ]; then
+              # Normalize repo URL to a simple name
+              url_no_proto="${repo#http://}"
+              url_no_proto="${url_no_proto#https://}"
+              name_tmp="${url_no_proto//\//_}"
+              name="${name_tmp//[^a-zA-Z0-9_\-]/}"
+              echo "Adding repo: $name -> $repo"
+              helm repo add "$name" "$repo" || {
+                echo "❌ Failed to add repo $repo"
+                exit 1
+              }
+            fi
+          done
+
+          # Build Helm dependencies
+          helm dependency build "charts/$chart" || {
+            echo "❌ Failed to build dependencies for $chart"
+            exit 1
+          }
 
       - name: Package chart
         run: |
