@@ -8,6 +8,7 @@ on:
 
 jobs:
   detect-changed-chart:
+    name: Detect Chart Changes
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -22,7 +23,8 @@ jobs:
     outputs:
       chart: ${{ steps.detect.outputs.chart }}
 
-  lint-test:
+  lint-and-test:
+    name: Lint and Test Chart
     runs-on: ubuntu-latest
     if: github.event_name == 'pull_request'
     permissions:
