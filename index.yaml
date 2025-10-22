@@ -166,6 +166,26 @@ entries:
   mediator:
   - apiVersion: v2
     appVersion: 0.1.0
+    created: "2025-10-22T19:53:25.030870996Z"
+    dependencies:
+    - name: common
+      repository: https://charts.bitnami.com/bitnami
+      tags:
+      - bitnami-common
+      version: 2.x.x
+    description: A Helm chart for the Credo DIDComm Mediator Service
+    digest: 8a5689e14224511b1a693215d3d6d75d931396b6d2fdb16402d502d02b006ab8
+    maintainers:
+    - email: emiliano.sune@quartech.com
+      name: esune
+      url: https://github.com/esune
+    name: mediator
+    type: application
+    urls:
+    - https://github.com/i5okie/owf-helm-charts/releases/download/mediator-0.5.2/mediator-0.5.2.tgz
+    version: 0.5.2
+  - apiVersion: v2
+    appVersion: 0.1.0
     created: "2025-10-22T19:24:20.509124493Z"
     dependencies:
     - name: common
@@ -243,4 +263,4 @@ entries:
     urls:
     - https://github.com/i5okie/owf-helm-charts/releases/download/vc-authn-oidc-0.4.3/vc-authn-oidc-0.4.3.tgz
     version: 0.4.3
-generated: "2025-10-22T19:24:20.509140974Z"
+generated: "2025-10-22T19:53:25.030894731Z"
