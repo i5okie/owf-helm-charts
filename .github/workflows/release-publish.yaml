@@ -2,13 +2,6 @@ name: Publish Release
 
 on:
   workflow_dispatch:
-    inputs:
-      dry_run:
-        description: "Dry run (do not upload releases or update index)"
-        required: false
-        default: "true"
-        type: choice
-        options: ["true", "false"]
   pull_request:
     types: [closed]
     branches: [ main ]
@@ -22,7 +15,6 @@ jobs:
       (github.event_name == 'pull_request' && github.event.pull_request.merged == true && startsWith(github.event.pull_request.head.ref, 'release/')) || github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-latest
     env:
-      DRY_RUN: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.dry_run || 'false' }}
       PR_HEAD_REF: ${{ github.event.pull_request.head.ref }}
     steps:
       - name: Checkout
@@ -115,40 +107,22 @@ jobs:
         env:
           CR_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          # shellcheck disable=SC2086
-          if [ "${DRY_RUN}" = "true" ]; then
-            echo "[DRY RUN] Would run cr upload for packages in .cr-release-packages"
-          else
-            cr upload \
-              --owner "${GITHUB_REPOSITORY_OWNER}" \
-              --git-repo "${GITHUB_REPOSITORY#*/}" \
-              --package-path .cr-release-packages \
-              --skip-existing \
-              --release-name-template "{{ .Name }}-{{ .Version }}" \
-              --make-release-latest=false
-          fi
+          cr upload \
+            --owner "${GITHUB_REPOSITORY_OWNER}" \
+            --git-repo "${GITHUB_REPOSITORY#*/}" \
+            --package-path .cr-release-packages \
+            --skip-existing \
+            --release-name-template "{{ .Name }}-{{ .Version }}" \
+            --make-release-latest=false
 
       - name: Update index.yaml
         env:
           CR_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          # shellcheck disable=SC2086
-          if [ "${DRY_RUN}" = "true" ]; then
-            echo "[DRY RUN] Would run cr index and push gh-pages update"
-          else
-            # Clean up any existing worktree to avoid conflicts
-            if [ -d .cr-index ]; then
-              echo "Removing existing .cr-index directory"
-              git worktree remove .cr-index --force 2>/dev/null || rm -rf .cr-index
-            fi
-
-            cr index \
-              --owner "${GITHUB_REPOSITORY_OWNER}" \
-              --git-repo "${GITHUB_REPOSITORY#*/}" \
-              --pages-branch gh-pages \
-              --pages-index-path index.yaml \
-              --push
-
-            # Clean up worktree after successful index update
-            git worktree remove .cr-index --force 2>/dev/null || rm -rf .cr-index
-          fi
+          mkdir .cr-index
+          cr index \
+            --owner "${GITHUB_REPOSITORY_OWNER}" \
+            --git-repo "${GITHUB_REPOSITORY#*/}" \
+            --pages-branch gh-pages \
+            --pages-index-path index.yaml \
+            --push
