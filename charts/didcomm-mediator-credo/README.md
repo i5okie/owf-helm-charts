@@ -1,108 +1,126 @@
-# DIDComm Mediator Credo
+# mediator
 
-![Version: 0.3.2](https://img.shields.io/badge/Version-0.3.2-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 0.1.0](https://img.shields.io/badge/AppVersion-0.1.0-informational?style=flat-square)
+![Version: 0.4.0](https://img.shields.io/badge/Version-0.4.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 0.1.0](https://img.shields.io/badge/AppVersion-0.1.0-informational?style=flat-square)
 
-A Helm chart to deploy the DIDComm Mediator Credo service.
+A Helm chart for the Credo DIDComm Mediator Service
 
-## TL;DR
+## Maintainers
 
-```console
-helm repo add owf	https://openwallet-foundation.github.io/helm-charts/
-helm repo update
-helm install my-release owf/didcomm-mediator-credo
-```
+| Name | Email | Url |
+| ---- | ------ | --- |
+| esune | <emiliano.sune@quartech.com> | <https://github.com/esune> |
 
-## Prerequisites
+## Requirements
 
-- Kubernetes 1.19+
-- Helm 3.2.0+
-- PV provisioner support in the underlying infrastructure
+| Repository | Name | Version |
+|------------|------|---------|
+| https://charts.bitnami.com/bitnami | common | 2.x.x |
 
-## Installing the Chart
+## Values
 
-To install the chart with the release name `my-release`:
+| Key | Type | Default | Description |
+|-----|------|---------|-------------|
+| affinity | object | `{}` |  |
+| autoscaling.enabled | bool | `false` |  |
+| autoscaling.maxReplicas | int | `100` |  |
+| autoscaling.minReplicas | int | `1` |  |
+| autoscaling.targetCPUUtilizationPercentage | int | `80` |  |
+| environment[0].name | string | `"LOG_LEVEL"` |  |
+| environment[0].value | string | `"2"` |  |
+| environment[10].name | string | `"PICKUP_TYPE"` |  |
+| environment[10].value | string | `nil` |  |
+| environment[11].name | string | `"PICKUP_STRATEGY"` |  |
+| environment[11].value | string | `"DirectDelivery"` |  |
+| environment[12].name | string | `"CREATE_NEW_INVITATION"` |  |
+| environment[12].value | string | `"false"` |  |
+| environment[13].name | string | `"GOAL_CODE"` |  |
+| environment[13].value | string | `"vc.mediate"` |  |
+| environment[14].name | string | `"USE_PUSH_NOTIFICATIONS"` |  |
+| environment[14].value | string | `"false"` |  |
+| environment[15].name | string | `"PUSH_NOTIFICATION_TITLE"` |  |
+| environment[15].value | string | `"You have a new message"` |  |
+| environment[16].name | string | `"PUSH_NOTIFICATION_BODY"` |  |
+| environment[16].value | string | `"Open your app to read it"` |  |
+| environment[17].name | string | `"NODE_OPTIONS"` |  |
+| environment[17].value | string | `nil` |  |
+| environment[18].name | string | `"MALLOC_CONF"` |  |
+| environment[18].value | string | `nil` |  |
+| environment[19].name | string | `"LD_PRELOAD"` |  |
+| environment[19].value | string | `nil` |  |
+| environment[1].name | string | `"AGENT_PORT"` |  |
+| environment[1].value | string | `"3000"` |  |
+| environment[2].name | string | `"AGENT_NAME"` |  |
+| environment[2].value | string | `"Mediator"` |  |
+| environment[3].name | string | `"AGENT_ENDPOINTS"` |  |
+| environment[3].value | string | `"http://example.com,wss://example.com"` |  |
+| environment[4].name | string | `"WALLET_NAME"` |  |
+| environment[4].value | string | `"mediator-wallet"` |  |
+| environment[5].name | string | `"POSTGRES_USER"` |  |
+| environment[5].valueFrom.secretKeyRef.key | string | `"user"` |  |
+| environment[5].valueFrom.secretKeyRef.name | string | `"mediator-credo-db"` |  |
+| environment[6].name | string | `"POSTGRES_HOST"` |  |
+| environment[6].value | string | `"mediator-credo-db"` |  |
+| environment[7].name | string | `"POSTGRES_ADMIN_USER"` |  |
+| environment[7].value | string | `"postgres"` |  |
+| environment[8].name | string | `"POSTGRES_PASSWORD"` |  |
+| environment[8].valueFrom.secretKeyRef.key | string | `"password"` |  |
+| environment[8].valueFrom.secretKeyRef.name | string | `"mediator-credo-db"` |  |
+| environment[9].name | string | `"POSTGRES_ADMIN_PASSWORD"` |  |
+| environment[9].valueFrom.secretKeyRef.key | string | `"admin-password"` |  |
+| environment[9].valueFrom.secretKeyRef.name | string | `"mediator-credo-db"` |  |
+| fullnameOverride | string | `""` |  |
+| image.pullPolicy | string | `"Always"` |  |
+| image.repository | string | `"ghcr.io/openwallet-foundation/didcomm-mediator-credo/mediator"` |  |
+| image.tag | string | `"314112b"` |  |
+| imagePullSecrets | list | `[]` |  |
+| ingress.annotations | object | `{}` |  |
+| ingress.className | string | `""` |  |
+| ingress.enabled | bool | `false` |  |
+| ingress.hosts | list | `[]` |  |
+| ingress.labels | object | `{}` |  |
+| ingress.tls | list | `[]` |  |
+| livenessProbe.failureThreshold | int | `3` |  |
+| livenessProbe.httpGet.path | string | `"/health"` |  |
+| livenessProbe.httpGet.port | string | `"http"` |  |
+| livenessProbe.periodSeconds | int | `10` |  |
+| livenessProbe.timeoutSeconds | int | `5` |  |
+| nameOverride | string | `""` |  |
+| networkPolicy.enabled | bool | `true` |  |
+| networkPolicy.ingress.enabled | bool | `false` |  |
+| networkPolicy.ingress.namespaceSelector | list | `[]` |  |
+| networkPolicy.ingress.podSelector | object | `{}` |  |
+| nodeSelector | object | `{}` |  |
+| podAnnotations | object | `{}` |  |
+| podLabels | object | `{}` |  |
+| podSecurityContext | object | `{}` |  |
+| postgresql.enabled | bool | `false` |  |
+| postgresql.selectorLabels | object | `{}` |  |
+| postgresql.servicePort | int | `5432` |  |
+| readinessProbe.failureThreshold | int | `3` |  |
+| readinessProbe.httpGet.path | string | `"/health"` |  |
+| readinessProbe.httpGet.port | string | `"http"` |  |
+| readinessProbe.periodSeconds | int | `5` |  |
+| readinessProbe.timeoutSeconds | int | `3` |  |
+| replicaCount | int | `1` |  |
+| resources | object | `{}` |  |
+| securityContext | object | `{}` |  |
+| service.port | int | `3000` |  |
+| service.type | string | `"ClusterIP"` |  |
+| serviceAccount.annotations | object | `{}` |  |
+| serviceAccount.automount | bool | `true` |  |
+| serviceAccount.create | bool | `true` |  |
+| serviceAccount.name | string | `""` |  |
+| startupProbe.failureThreshold | int | `30` |  |
+| startupProbe.httpGet.path | string | `"/health"` |  |
+| startupProbe.httpGet.port | string | `"http"` |  |
+| startupProbe.initialDelaySeconds | int | `10` |  |
+| startupProbe.periodSeconds | int | `10` |  |
+| startupProbe.timeoutSeconds | int | `5` |  |
+| tolerations | list | `[]` |  |
+| volumeMounts[0].mountPath | string | `"/.cache"` |  |
+| volumeMounts[0].name | string | `"cache-volume"` |  |
+| volumes[0].emptyDir.sizeLimit | string | `"1Gi"` |  |
+| volumes[0].name | string | `"cache-volume"` |  |
 
-```console
-helm repo add owf	https://openwallet-foundation.github.io/helm-charts/
-helm install my-release owf/didcomm-mediator-credo
-```
-
-> **Tip**: List all releases using `helm list`
-
-
-## Uninstalling the Chart
-
-To uninstall/delete the `my-release` deployment:
-
-```console
-helm delete my-release
-```
-
-The command removes all the Kubernetes components but secrets and PVC's associated with the chart and deletes the release.
-
-To delete the secrets and PVC's associated with `my-release`:
-
-```console
-kubectl delete secret,pvc --selector "app.kubernetes.io/instance"=my-release
-```
-
-## Persistence
-
-The mediator chart assumes a PostgreSQL deployment is available. The appropriate settings must be configured in the `environment`, `networkpolicy` and `postgresql` sections.
-
-## Parameters
-
-### Mediator Settings
-
-| Name                                         | Description                                                                                                                                                                               | Value                                                           |
-| -------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------- |
-| `replicaCount`                               | This will set the replicaset count more information can be found here: https://kubernetes.io/docs/concepts/workloads/controllers/replicaset/                                              | `1`                                                             |
-| `image.repository`                           |                                                                                                                                                                                           | `ghcr.io/openwallet-foundation/didcomm-mediator-credo/mediator` |
-| `image.pullPolicy`                           |                                                                                                                                                                                           | `Always`                                                        |
-| `image.tag`                                  | Overrides the image tag which defaults to the chart appVersion.                                                                                                                           | `314112b`                                                       |
-| `imagePullSecrets`                           |                                                                                                                                                                                           | `[]`                                                            |
-| `nameOverride`                               | String to override the helm chart name, second part of the prefix.                                                                                                                        | `""`                                                            |
-| `fullnameOverride`                           | String to fully override the helm chart name, full prefix. *Must be provided if using a custom release name that does not include the name of the helm chart (`didcomm-mediator-credo`).* | `""`                                                            |
-| `serviceAccount.create`                      | Specifies whether a ServiceAccount should be created                                                                                                                                      | `true`                                                          |
-| `serviceAccount.annotations`                 | Annotations for service account. Evaluated as a template. Only used if `create` is `true`.                                                                                                | `{}`                                                            |
-| `serviceAccount.automount`                   | Automount service account token for the server service account                                                                                                                            | `true`                                                          |
-| `serviceAccount.name`                        | Name of the service account to use. If not set and create is true, a name is generated using the fullname template.                                                                       | `""`                                                            |
-| `podAnnotations`                             | Map of annotations to add to the mediator pods                                                                                                                                            | `{}`                                                            |
-| `podLabels`                                  | Map of labels to add to the mediator pods                                                                                                                                                 | `{}`                                                            |
-| `podSecurityContext`                         | Pod Security Context                                                                                                                                                                      | `{}`                                                            |
-| `securityContext`                            | Container Security Context                                                                                                                                                                | `{}`                                                            |
-| `service.type`                               | Kubernetes Service type                                                                                                                                                                   | `ClusterIP`                                                     |
-| `service.port`                               |                                                                                                                                                                                           | `3000`                                                          |
-| `ingress.enabled`                            | Enable ingress record generation for controller                                                                                                                                           | `false`                                                         |
-| `ingress.className`                          | IngressClass that will be be used to implement the Ingress (Kubernetes 1.18+)                                                                                                             | `""`                                                            |
-| `ingress.labels`                             | Additional labels for the Ingress resource.                                                                                                                                               | `{}`                                                            |
-| `ingress.annotations`                        | Additional annotations for the Ingress resource.                                                                                                                                          | `{}`                                                            |
-| `ingress.hosts`                              | List of hosts to be configured for the specified ingress record.                                                                                                                          | `[]`                                                            |
-| `ingress.tls`                                | Enable TLS configuration for the host defined at ingress.                                                                                                                                 | `[]`                                                            |
-| `networkPolicy.enabled`                      | Enable network policies                                                                                                                                                                   | `true`                                                          |
-| `networkPolicy.ingress.enabled`              | Enable ingress rules                                                                                                                                                                      | `false`                                                         |
-| `networkPolicy.ingress.namespaceSelector`    | Namespace selector label that is allowed to access the Tenant proxy pods.                                                                                                                 | `{}`                                                            |
-| `networkPolicy.ingress.podSelector`          | Pod selector label that is allowed to access the Tenant proxy pods.                                                                                                                       | `{}`                                                            |
-| `resources`                                  | CPU/Memory resource requests/limits - unset by default                                                                                                                                    | `{}`                                                            |
-| `environment`                                | Variables to be passed to the container                                                                                                                                                   | `[]`                                                            |
-| `livenessProbe`                              | Liveness probe configuration                                                                                                                                                              | `{}`                                                            |
-| `readinessProbe`                             | Readiness probe configuration                                                                                                                                                             | `{}`                                                            |
-| `startupProbe`                               | Startup probe configuration                                                                                                                                                               | `{}`                                                            |
-| `autoscaling.enabled`                        | Enable Horizontal POD autoscaling for the Credo Mediator                                                                                                                                  | `false`                                                         |
-| `autoscaling.minReplicas`                    | Minimum number of replicas                                                                                                                                                                | `1`                                                             |
-| `autoscaling.maxReplicas`                    | Maximum number of replicas                                                                                                                                                                | `100`                                                           |
-| `autoscaling.targetCPUUtilizationPercentage` | Target CPU utilization percentage                                                                                                                                                         | `80`                                                            |
-| `volumes`                                    | List of volume claims to be created                                                                                                                                                       | `[]`                                                            |
-| `volumeMounts`                               | List of volumes to be mounted in the container                                                                                                                                            | `[]`                                                            |
-| `nodeSelector`                               | Node labels for pods assignment                                                                                                                                                           | `{}`                                                            |
-| `tolerations`                                | Tolerations for pods assignment                                                                                                                                                           | `[]`                                                            |
-| `affinity`                                   | Affinity for pods assignment                                                                                                                                                              | `{}`                                                            |
-
-### PostgreSQL parameters
-
-| Name                        | Description                                                                    | Value   |
-| --------------------------- | ------------------------------------------------------------------------------ | ------- |
-| `postgresql.enabled`        | Enable network policy for PostgreSQL access                                    | `false` |
-| `postgresql.selectorLabels` | Labels selecting the postgresql resources to give the mediator pods access to. | `[]`    |
-| `postgresql.servicePort`    | PostgreSQL service port to be used in the network policy                       | `5432`  |
-
+----------------------------------------------
+Autogenerated from chart metadata using [helm-docs v1.14.2](https://github.com/norwoodj/helm-docs/releases/v1.14.2)
