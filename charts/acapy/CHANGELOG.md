@@ -1,3 +1,9 @@
+## [0.3.0](https://github.com/i5okie/owf-helm-charts/compare/acapy-0.2.1...acapy-0.3.0) (2025-10-22)
+
+### Features
+
+* **acapy:** Add flag to disable wallet seed secret creation and env var mounting ([#37](https://github.com/i5okie/owf-helm-charts/issues/37)) ([12b75b0](https://github.com/i5okie/owf-helm-charts/commit/12b75b054957fae71caae0d3c746d177e3647c1c))
+* **acapy:** remove deprecated bitnami helper function references ([#38](https://github.com/i5okie/owf-helm-charts/issues/38)) ([8a146f8](https://github.com/i5okie/owf-helm-charts/commit/8a146f8671a418c1e54d8c7c309957d694f60ebd))
 ##  (2025-09-15)
 
 ### Features
