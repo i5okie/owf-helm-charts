@@ -1,3 +1,4 @@
+## [0.5.2](https://github.com/i5okie/owf-helm-charts/compare/didcomm-mediator-credo-0.5.0...didcomm-mediator-credo-0.5.2) (2025-10-22)
 ## [0.5.1](https://github.com/i5okie/owf-helm-charts/compare/didcomm-mediator-credo-0.4.0...didcomm-mediator-credo-0.5.1) (2025-10-22)
 ## 0.5.0 (2025-10-22)
 
