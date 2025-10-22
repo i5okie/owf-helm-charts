@@ -115,10 +115,19 @@ jobs:
           if [ "${DRY_RUN}" = "true" ]; then
             echo "[DRY RUN] Would run cr index and push gh-pages update"
           else
+            # Clean up any existing worktree to avoid conflicts
+            if [ -d .cr-index ]; then
+              echo "Removing existing .cr-index directory"
+              git worktree remove .cr-index --force 2>/dev/null || rm -rf .cr-index
+            fi
+
             cr index \
               --owner "${GITHUB_REPOSITORY_OWNER}" \
               --git-repo "${GITHUB_REPOSITORY#*/}" \
               --pages-branch gh-pages \
               --pages-index-path index.yaml \
               --push
+
+            # Clean up worktree after successful index update
+            git worktree remove .cr-index --force 2>/dev/null || rm -rf .cr-index
           fi
