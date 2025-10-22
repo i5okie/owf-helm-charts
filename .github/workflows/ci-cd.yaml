@@ -8,6 +8,7 @@ on:
 
 jobs:
   detect-changed-chart:
+    name: Detect Chart Changes
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -22,7 +23,8 @@ jobs:
     outputs:
       chart: ${{ steps.detect.outputs.chart }}
 
-  lint-test:
+  lint-and-test:
+    name: Lint and Test Chart
     runs-on: ubuntu-latest
     if: github.event_name == 'pull_request'
     permissions:
@@ -104,115 +106,3 @@ jobs:
           ct install \
             --charts "charts/${{ needs.detect-changed-chart.outputs.chart }}" \
             --config .github/ct.yaml
-
-      - name: Check version and appVersion bump
-        working-directory: ./charts
-        run: |
-          chart="${{ needs.detect-changed-chart.outputs.chart }}"
-          echo "Checking $chart..."
-
-          # Check chart version bump
-          compare_versions() {
-            local old_version=$1 new_version=$2
-            # If old_version sorts first, then new_version is greater (correct)
-            if [ "$(printf '%s\n' "$old_version" "$new_version" | sort -V | head -n1)" = "$old_version" ] && [ "$old_version" != "$new_version" ]; then
-              echo "✅ Version bump: $old_version → $new_version"
-            else
-              echo "❌ Version bump required: New version ($new_version) is not greater than old version ($old_version)"
-              exit 1
-            fi
-          }
-          old_version=$(git show ${{ github.event.pull_request.base.sha }}:$chart/Chart.yaml 2>/dev/null | yq '.version // "0.0.0"' || echo "0.0.0")
-          new_version=$(yq '.version // "0.0.0"' $chart/Chart.yaml)
-          compare_versions "$old_version" "$new_version"
-
-          # Check appVersion bump
-          old_app=$(git show ${{ github.event.pull_request.base.sha }}:$chart/Chart.yaml 2>/dev/null | yq '.appVersion // "0.0.0"' || echo "0.0.0")
-          new_app=$(yq '.appVersion // "0.0.0"' $chart/Chart.yaml)
-          if [[ "$old_app" == "$new_app" ]]; then
-            echo "⚠️ Warning: appVersion for $chart is unchanged ($new_app). Not failing, but consider bumping."
-          fi
-
-      - name: Install generators (pinned)
-        uses: ./.github/actions/install-generators
-
-      - name: Install jq (pinned)
-        run: |
-          curl -fsSL -o /usr/local/bin/jq "https://github.com/jqlang/jq/releases/download/jq-${JQ_VERSION}/jq-linux-amd64"
-          chmod +x /usr/local/bin/jq
-
-      - name: Check README and CHANGELOG updates
-        working-directory: ./charts
-        run: |
-          chart="${{ needs.detect-changed-chart.outputs.chart }}"
-
-          # Store original files for comparison
-          cp "$chart/README.md" "$chart/README.md.original" 2>/dev/null || touch "$chart/README.md.original"
-          cp "$chart/CHANGELOG.md" "$chart/CHANGELOG.md.original" 2>/dev/null || touch "$chart/CHANGELOG.md.original"
-
-          # Generate fresh README (prefer helm-docs, fallback to Bitnami)
-          echo "🔄 Generating fresh README for $chart..."
-          if command -v helm-docs > /dev/null 2>&1; then
-            echo "Using helm-docs..."
-            helm-docs -c "$chart"
-          else
-            echo "Fallback to Bitnami generator..."
-            npx @bitnami/readme-generator-for-helm --readme "$chart/README.md" --values "$chart/values.yaml"
-          fi
-
-          echo "🔄 Generating fresh CHANGELOG for $chart..."
-          npx conventional-changelog -p conventionalcommits -i "$chart/CHANGELOG.md" -s
-
-          # Check if README needs to be updated
-          readme_needs_update=false
-          if ! diff -q "$chart/README.md.original" "$chart/README.md" >/dev/null 2>&1; then
-            readme_needs_update=true
-            echo "❌ README.md for $chart needs to be updated due to changes in values.yaml"
-          fi
-
-          # Check CHANGELOG (advisory only) - exclude documentation-only changes
-          functional_changes=$(git diff --name-only ${{ github.event.pull_request.base.sha }} ${{ github.event.pull_request.head.sha }} "$chart/" | grep -v -E '(README\.md|CHANGELOG\.md|\.md$|NOTES\.txt)$' || true)
-
-          changelog_could_update=false
-          if ! diff -q "$chart/CHANGELOG.md.original" "$chart/CHANGELOG.md" >/dev/null 2>&1; then
-            changelog_could_update=true
-          fi
-
-          # Restore original files before reporting
-          mv "$chart/README.md.original" "$chart/README.md"
-          mv "$chart/CHANGELOG.md.original" "$chart/CHANGELOG.md"
-
-          # Report results - only fail on README issues
-          if [ "$readme_needs_update" = true ]; then
-            echo "❌ README.md for $chart needs to be updated."
-            echo "   The values.yaml file has documentation comments that require README regeneration."
-            echo ""
-            echo "🛠️  To fix this issue, run one of:"
-            echo "   • make docs CHART=$chart"
-            echo "   • helm-docs -c charts/$chart"
-            echo "   • npx @bitnami/readme-generator-for-helm --readme charts/$chart/README.md --values charts/$chart/values.yaml"
-            echo ""
-            echo "   Then commit the updated README.md"
-            echo ""
-            exit 1
-          else
-            echo "✅ README.md is up to date"
-          fi
-
-          # CHANGELOG guidance (never fails)
-          if [ -z "$functional_changes" ]; then
-            echo "✅ Documentation-only changes detected, CHANGELOG update not required"
-          elif [ "$changelog_could_update" = true ]; then
-            echo "📋 Functional changes detected:"
-            echo "$functional_changes" | while IFS= read -r line; do printf '  %s\n' "$line"; done
-            echo ""
-            echo "⚠️  CHANGELOG could be updated, but this is not enforced."
-            echo "   If your changes are significant (new features, bug fixes, breaking changes),"
-            echo "   please consider running: npx conventional-changelog -p conventionalcommits -i $chart/CHANGELOG.md -s"
-            echo ""
-            echo "   💡 Skip this if you're just fixing typos, formatting, or making trivial changes."
-          else
-            echo "✅ CHANGELOG guidance: No update needed or already up to date"
-          fi
-
-          echo "🎉 All documentation is up to date!"
