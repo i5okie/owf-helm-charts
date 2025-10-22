@@ -3,12 +3,6 @@ name: Generate Release PRs
 on:
   workflow_dispatch:
     inputs:
-      dry_run:
-        description: "Dry run (do not push branches or open PRs)"
-        required: false
-        default: "true"
-        type: choice
-        options: ["true", "false"]
       chart:
         description: "Optional: limit to a single chart name (leave empty for all charts)"
         required: false
@@ -29,7 +23,6 @@ jobs:
   release-pr:
     runs-on: ubuntu-latest
     env:
-      DRY_RUN: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.dry_run || 'false' }}
       CHART_INPUT: ${{ github.event.inputs.chart || '' }}
     steps:
       - name: Checkout
@@ -193,19 +186,16 @@ jobs:
                        -m "Previous version: ${current_version}" \
                        -m "Next version: ${next_version}"
 
-            # Push branch (skip if dry-run)
-            if [ "${DRY_RUN}" = "true" ]; then
-              echo "::warning::[DRY RUN] Would push branch: ${branch}"
-            else
-              git push origin "${branch}" --force
-              echo "✅ Pushed branch: ${branch}"
+            # Push branch
+            git push origin "${branch}" --force
+            echo "✅ Pushed branch: ${branch}"
 
-              # Open or update PR
-              existing_pr_number=$(gh pr list --state open --head "${branch}" --json number --jq '.[0].number' || echo "")
-              compare_url="https://github.com/${{ github.repository }}/compare/${last_tag:-main}...${branch}"
+            # Open or update PR
+            existing_pr_number=$(gh pr list --state open --head "${branch}" --json number --jq '.[0].number' || echo "")
+            compare_url="https://github.com/${{ github.repository }}/compare/${last_tag:-main}...${branch}"
 
-              # Create PR body using heredoc
-              pr_body=$(cat <<EOF
+            # Create PR body using heredoc
+            pr_body=$(cat <<EOF
           Automated Release PR for **${chart}** v${next_version}
 
           ## Release Information
@@ -240,14 +230,9 @@ jobs:
                   --label "release-pr"
                 echo "✅ Created new PR"
               fi
-            fi
 
             # Return to main branch for next chart
             git switch main
 
             echo "::endgroup::"
           done
-
-          if [ "${DRY_RUN}" = "true" ]; then
-            echo "::notice::[DRY RUN] Workflow completed without making changes"
-          fi
