@@ -150,9 +150,15 @@ jobs:
           cp "$chart/README.md" "$chart/README.md.original" 2>/dev/null || touch "$chart/README.md.original"
           cp "$chart/CHANGELOG.md" "$chart/CHANGELOG.md.original" 2>/dev/null || touch "$chart/CHANGELOG.md.original"
 
-          # Generate fresh README and CHANGELOG
+          # Generate fresh README (prefer helm-docs, fallback to Bitnami)
           echo "🔄 Generating fresh README for $chart..."
-          npx @bitnami/readme-generator-for-helm --readme "$chart/README.md" --values "$chart/values.yaml"
+          if command -v helm-docs > /dev/null 2>&1; then
+            echo "Using helm-docs..."
+            helm-docs -c "$chart"
+          else
+            echo "Fallback to Bitnami generator..."
+            npx @bitnami/readme-generator-for-helm --readme "$chart/README.md" --values "$chart/values.yaml"
+          fi
 
           echo "🔄 Generating fresh CHANGELOG for $chart..."
           npx conventional-changelog -p conventionalcommits -i "$chart/CHANGELOG.md" -s
@@ -179,13 +185,14 @@ jobs:
           # Report results - only fail on README issues
           if [ "$readme_needs_update" = true ]; then
             echo "❌ README.md for $chart needs to be updated."
-            echo "   The values.yaml file has @param annotations that require README regeneration."
-            echo "   Please run: npx @bitnami/readme-generator-for-helm --readme $chart/README.md --values $chart/values.yaml"
+            echo "   The values.yaml file has documentation comments that require README regeneration."
             echo ""
-            echo "🛠️  To fix this issue:"
-            echo "   1. Install generator: npm install -g @bitnami/readme-generator-for-helm"
-            echo "   2. Update README: npx @bitnami/readme-generator-for-helm --readme $chart/README.md --values $chart/values.yaml"
-            echo "   3. Commit the updated README.md"
+            echo "🛠️  To fix this issue, run one of:"
+            echo "   • make docs CHART=$chart"
+            echo "   • helm-docs -c charts/$chart"
+            echo "   • npx @bitnami/readme-generator-for-helm --readme charts/$chart/README.md --values charts/$chart/values.yaml"
+            echo ""
+            echo "   Then commit the updated README.md"
             echo ""
             exit 1
           else
