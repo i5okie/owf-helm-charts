@@ -1,0 +1,13 @@
+# Ensure shell scripts always use LF (Unix) line endings
+# Critical for devcontainer compatibility on Windows
+*.sh text eol=lf
+
+# Ensure workflow files use LF
+*.yaml text eol=lf
+*.yml text eol=lf
+
+# Makefile requires tabs with LF
+Makefile text eol=lf
+
+# Documentation
+*.md text eol=lf

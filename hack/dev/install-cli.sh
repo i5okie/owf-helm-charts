@@ -55,7 +55,9 @@ fi
 exec "${repo}/${rel}" "$@"
 WRAP
   # Replace placeholders with actual paths without introducing quoting issues
-  sed -i "s|__EMBED_REPO__|${repo_root}|g; s|__REL__|${rel}|g" "${target}"
+  # Use temp file for portable sed (works on both GNU and BSD)
+  sed "s|__EMBED_REPO__|${repo_root}|g; s|__REL__|${rel}|g" "${target}" > "${target}.tmp"
+  mv "${target}.tmp" "${target}"
   chmod +x "${target}"
   echo "[info] Installed ${target}"
 }

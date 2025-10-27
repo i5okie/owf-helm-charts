@@ -37,6 +37,8 @@ if [[ "${first_line}" =~ ^##\ \[]\(https://.+\.\.\. ]]; then
   lines_after=$(tail -n +2 "${changelog}" | grep -v '^#' | grep -v '^\s*$' || true)
   if [[ -z "${lines_after}" ]]; then
     last_tag=$(git -C "${repo_root}" describe --tags --match "${chart}-*" --abbrev=0 2> /dev/null || echo "${chart}-0.0.0")
-    sed -i "1s|.*|## No unreleased changes since ${last_tag}|" "${changelog}"
+    # Use temp file for portable sed (works on both GNU and BSD)
+    sed "1s|.*|## No unreleased changes since ${last_tag}|" "${changelog}" > "${changelog}.tmp"
+    mv "${changelog}.tmp" "${changelog}"
   fi
 fi

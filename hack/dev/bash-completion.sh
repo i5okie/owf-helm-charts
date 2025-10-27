@@ -2,8 +2,10 @@
 # bash-completion.sh — Tab completion for chart-* helpers and chart names
 
 _owf_chart_names() {
-  # Use find to list only immediate subdirectories under charts/
-  find charts -maxdepth 1 -mindepth 1 -type d -printf '%f\n' 2> /dev/null
+  # Use portable find + basename pattern (works on GNU and BSD find)
+  find charts -maxdepth 1 -mindepth 1 -type d 2> /dev/null | while read -r dir; do
+    basename "$dir"
+  done
 }
 
 _complete_chart_cmd() {
