@@ -69,7 +69,11 @@ jobs:
 
             # Classify commits since last tag
             chmod +x hack/release/*.sh
-            eval "$(hack/release/classify_commits.sh "charts/${chart}" "$last_tag")"
+            classify_output="$(hack/release/classify_commits.sh "charts/${chart}" "$last_tag")" || {
+              echo "::error::Failed to classify commits for ${chart}"
+              continue
+            }
+            eval "$classify_output"
 
             if [ "${BUMP_LEVEL}" != "none" ] && [ -n "${BUMP_LEVEL}" ]; then
               echo "✅ ${chart} needs ${BUMP_LEVEL} bump"
@@ -107,7 +111,12 @@ jobs:
 
             # Classify commits and get bump level
             current_version="$(yq '.version' "charts/${chart}/Chart.yaml")"
-            eval "$(hack/release/classify_commits.sh "charts/${chart}" "$last_tag")"
+            classify_output="$(hack/release/classify_commits.sh "charts/${chart}" "$last_tag")" || {
+              echo "::error::Failed to classify commits for ${chart}"
+              echo "::endgroup::"
+              continue
+            }
+            eval "$classify_output"
             auto_bump="${BUMP_LEVEL}"
             echo "Current version: ${current_version}"
             echo "Automatic bump level: ${auto_bump}"
