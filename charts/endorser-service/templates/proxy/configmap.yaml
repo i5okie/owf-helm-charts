@@ -1,0 +1,29 @@
+{{- if and .Values.proxy.enabled (not .Values.proxy.existingConfigMap) }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "endorser-service.fullname" . }}-proxy-caddy-conf
+  labels:
+    {{- include "endorser-service.labels" . | nindent 4 }}
+    app.kubernetes.io/component: proxy
+    app.kubernetes.io/part-of: {{ include "endorser-service.fullname" . }}
+  annotations: {}
+data:
+  {{ .Values.proxy.caddyConfigFileName }}: |
+{{- if .Values.proxy.caddyConfig.caddyfile }}
+{{ .Values.proxy.caddyConfig.caddyfile | indent 4 }}
+{{- else }}
+  :{{ .Values.proxy.service.ports.agent }} {
+    encode gzip
+    reverse_proxy http://${ACAPY_AGENT_HOST}:${ACAPY_HTTP_PORT}
+  }
+  :{{ .Values.proxy.service.ports.admin }} {
+    encode gzip
+    reverse_proxy http://${ACAPY_AGENT_HOST}:${ACAPY_ADMIN_PORT}
+  }
+  :{{ .Values.proxy.service.ports.endorserService }} {
+    encode gzip
+    reverse_proxy http://${ENDORSER_SERVICE_HOST}:${ENDORSER_SERVICE_PORT}
+  }
+{{- end }}
+{{- end }}
