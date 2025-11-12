@@ -98,8 +98,6 @@ RUN set -euo pipefail; \
     *) echo "Unsupported architecture: $raw_arch" >&2; exit 1 ;; \
     esac; \
     echo "== Installing local workflow tools =="; set -x; \
-    curl -fsSL -o /tmp/act.tgz https://github.com/nektos/act/releases/download/v${ACT_VERSION}/act_linux_${ARCH}.tar.gz; \
-    tar -xzf /tmp/act.tgz -C /tmp act; sudo mv /tmp/act /usr/local/bin/act; act --version; \
     curl -fsSL -o /tmp/actionlint.tgz https://github.com/rhysd/actionlint/releases/download/v${ACTIONLINT_VERSION}/actionlint_${ACTIONLINT_VERSION}_linux_${ARCH}.tar.gz; \
     tar -xzf /tmp/actionlint.tgz -C /tmp actionlint; sudo mv /tmp/actionlint /usr/local/bin/actionlint; actionlint --version
 

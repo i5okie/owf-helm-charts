@@ -39,16 +39,17 @@ jobs:
       - name: Load version pins
         uses: ./.github/actions/load-pins
 
-      - name: Cache dependencies
+      - name: Cache Helm repositories and dependencies
         uses: actions/cache@v4
         with:
           path: |
-            ~/.cache/yq
-            ~/.cache/helm
-            ~/.npm
-          key: ${{ runner.os }}-deps-${{ needs.detect-changed-chart.outputs.chart }}-${{ hashFiles('charts/${{ needs.detect-changed-chart.outputs.chart }}/**/*') }}
+            ~/.cache/helm/repository
+            ~/.local/share/helm/repository
+            charts/${{ needs.detect-changed-chart.outputs.chart }}/charts/*.tgz
+          key: ${{ runner.os }}-helm-${{ needs.detect-changed-chart.outputs.chart }}-${{ hashFiles('charts/${{ needs.detect-changed-chart.outputs.chart }}/Chart.yaml') }}
           restore-keys: |
-            ${{ runner.os }}-deps-
+            ${{ runner.os }}-helm-${{ needs.detect-changed-chart.outputs.chart }}-
+            ${{ runner.os }}-helm-
 
       - name: Set up Helm
         uses: azure/setup-helm@v4.3.1
