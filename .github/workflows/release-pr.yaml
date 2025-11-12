@@ -30,10 +30,23 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: Check if release commit
+        id: check-release-commit
+        run: |
+          last_commit_msg=$(git log -1 --pretty=%B)
+          if echo "$last_commit_msg" | grep -q "^chore(.*): prepare release"; then
+            echo "skip=true" >> "$GITHUB_OUTPUT"
+            echo "Last commit is a release preparation commit, skipping workflow"
+          else
+            echo "skip=false" >> "$GITHUB_OUTPUT"
+          fi
+
       - name: Load version pins
+        if: steps.check-release-commit.outputs.skip != 'true'
         uses: ./.github/actions/load-pins
 
       - name: Cache generators
+        if: steps.check-release-commit.outputs.skip != 'true'
         id: cache-generators
         uses: actions/cache@v4
         with:
@@ -44,15 +57,17 @@ jobs:
           key: ${{ runner.os }}-generators-${{ hashFiles('hack/versions.env') }}
 
       - name: Install generators (pinned)
-        if: steps.cache-generators.outputs.cache-hit != 'true'
+        if: steps.check-release-commit.outputs.skip != 'true' && steps.cache-generators.outputs.cache-hit != 'true'
         uses: ./.github/actions/install-generators
 
       - name: Configure git
+        if: steps.check-release-commit.outputs.skip != 'true'
         run: |
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git config user.name "github-actions[bot]"
 
       - name: Discover charts needing release
+        if: steps.check-release-commit.outputs.skip != 'true'
         id: discover
         shell: bash
         run: |
@@ -105,7 +120,7 @@ jobs:
           fi
 
       - name: Process release PRs
-        if: steps.discover.outputs.charts_json != '[]'
+        if: steps.check-release-commit.outputs.skip != 'true' && steps.discover.outputs.charts_json != '[]'
         shell: bash
         env:
           CHARTS_JSON: ${{ steps.discover.outputs.charts_json }}
