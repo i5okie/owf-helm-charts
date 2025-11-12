@@ -68,6 +68,7 @@ jobs:
           # Use hash-based naming to avoid collisions and handle special chars
           repos=$(yq '.dependencies // [] | .[] | .repository' "$chart/Chart.yaml" | sort -u)
 
+          repos_added=0
           for repo in $repos; do
             if [ -n "$repo" ] && [ "$repo" != "null" ]; then
               # Generate deterministic name from URL hash (first 8 chars of sha256)
@@ -79,11 +80,16 @@ jobs:
                 echo "::error::Failed to add Helm repository: $repo"
                 exit 1
               fi
+              repos_added=$((repos_added + 1))
             fi
           done
 
-          # Update repo index
-          helm repo update
+          # Update repo index only if repos were added
+          if [ $repos_added -gt 0 ]; then
+            helm repo update
+          else
+            echo "No Helm repositories to update (chart has no dependencies)"
+          fi
 
           # Build Helm dependencies
           echo "Building dependencies for $chart..."
