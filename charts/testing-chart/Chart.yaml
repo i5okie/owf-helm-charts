@@ -13,8 +13,9 @@ description: A Helm chart for Kubernetes
 type: application
 
 maintainers:
-  - name: Ivan P
-    email: ipzent@gmail.com
+  - email: ipzent@gmail.com
+    name: i5okie
+    url: https://github.com/i5okie
 
 # This is the chart version. This version number should be incremented each time you make changes
 # to the chart and its templates, including the app version.
