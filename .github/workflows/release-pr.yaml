@@ -33,7 +33,18 @@ jobs:
       - name: Load version pins
         uses: ./.github/actions/load-pins
 
+      - name: Cache generators
+        id: cache-generators
+        uses: actions/cache@v4
+        with:
+          path: |
+            /usr/local/bin/helm-docs
+            ~/.npm
+            /usr/local/lib/node_modules
+          key: ${{ runner.os }}-generators-${{ hashFiles('hack/versions.env') }}
+
       - name: Install generators (pinned)
+        if: steps.cache-generators.outputs.cache-hit != 'true'
         uses: ./.github/actions/install-generators
 
       - name: Configure git

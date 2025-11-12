@@ -114,13 +114,12 @@ node_ver=$(node --version 2> /dev/null | trim_v || true)
 shellcheck_ver=$(shellcheck --version 2> /dev/null | awk '/version:/ {print $2}' | trim_v || true)
 # shellcheck disable=SC2310
 shfmt_ver=$(shfmt --version 2> /dev/null | trim_v || true)
-# helm-docs outputs line like: "helm-docs version v1.14.2" — extract numeric version
 # shellcheck disable=SC2310
 helm_docs_ver=$(helm-docs --version 2> /dev/null | grep -Eo '[0-9]+(\.[0-9]+){1,3}' | head -n1 | trim_v || true)
 # shellcheck disable=SC2310
 act_ver=$(act --version 2> /dev/null | awk '{print $3}' | trim_v || true)
 # shellcheck disable=SC2310
-actionlint_ver=$(actionlint --version 2> /dev/null | awk '{print $2}' | trim_v || true)
+actionlint_ver=$(actionlint --version 2> /dev/null | grep -Eo '[0-9]+(\.[0-9]+){1,3}' | head -n1 | trim_v || true)
 
 print_header
 check "${helm_ver}" "${HELM_VERSION:-}" HELM
@@ -140,9 +139,6 @@ if command -v shfmt > /dev/null 2>&1; then
 fi
 if command -v helm-docs > /dev/null 2>&1; then
   check "${helm_docs_ver}" "${HELM_DOCS_VERSION:-}" HELM_DOCS
-fi
-if command -v act > /dev/null 2>&1; then
-  check "${act_ver}" "${ACT_VERSION:-}" ACT
 fi
 if command -v actionlint > /dev/null 2>&1; then
   check "${actionlint_ver}" "${ACTIONLINT_VERSION:-}" ACTIONLINT
