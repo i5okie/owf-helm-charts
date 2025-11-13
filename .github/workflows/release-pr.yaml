@@ -188,11 +188,34 @@ jobs:
             npx conventional-changelog -p conventionalcommits --tag-prefix "${chart}-" --commit-path "charts/${chart}" -i "charts/${chart}/CHANGELOG.md" -s || true
             rm package.json
 
-            # Generate README
-            if command -v helm-docs > /dev/null 2>&1; then
-              helm-docs -c "charts/${chart}"
+            # Detect and generate README with appropriate tool
+            echo "🔍 Detecting documentation format for ${chart}..."
+            doc_tool="none"
+            values_file="charts/${chart}/values.yaml"
+
+            if grep -q "^## @param" "${values_file}"; then
+              doc_tool="readme-generator"
+              echo "✅ Detected readme-generator format (## @param annotations)"
+            elif grep -q "^# --" "${values_file}"; then
+              doc_tool="helm-docs"
+              echo "✅ Detected helm-docs format (# -- annotations)"
             else
+              echo "⚠️  No documentation annotations found in values.yaml"
+            fi
+
+            # Generate README based on detected format
+            if [ "${doc_tool}" = "helm-docs" ]; then
+              if command -v helm-docs > /dev/null 2>&1; then
+                echo "📝 Generating README with helm-docs"
+                helm-docs -c "charts/${chart}"
+              else
+                echo "::warning::helm-docs not found, skipping README generation"
+              fi
+            elif [ "${doc_tool}" = "readme-generator" ]; then
+              echo "📝 Generating README with readme-generator"
               npx @bitnami/readme-generator-for-helm --readme "charts/${chart}/README.md" --values "charts/${chart}/values.yaml"
+            else
+              echo "⚠️  Skipping README generation (no documentation annotations found)"
             fi
 
             # Commit changes
