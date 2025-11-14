@@ -6,10 +6,10 @@ To maintain clarity, consistency, and automation reliability, please follow thes
 
 ## General Guidelines
 
-- **One Chart per PR:** Each pull request (PR) must be scoped to a single chart.
+- **Keep PRs focused:** Each pull request should be scoped to a single chart.
   - You may introduce **one new** Helm chart, **or**
   - Modify **one existing** Helm chart.
-  - Do **not** include changes for multiple charts in a single PR (this is enforced by CI).
+  - Please don't include changes for multiple charts in the same PR (CI validates this for you).
 
 - **Chart Location:** Create new charts under `charts/<CHART>` using a unique, meaningful name that reflects the OWF project the chart supports.
 
@@ -71,7 +71,7 @@ The hooks validate:
 We use the Release PR workflow for versioning & publishing:
 
 1. Feature/fix PRs DO NOT bump `Chart.yaml` version.
-2. All commits must follow Conventional Commits. Per‑chart scope in commit messages is optional because each PR is limited to a single chart; include the chart scope in the PR title (preferred: `feat(<chart>): ...`).
+2. All commits must follow Conventional Commits. Include the chart scope in your PR title: `<type>(<chart>): <description>` (e.g., `feat(acapy): add health check probe`).
 3. A scheduled (or manually triggered) workflow detects changes since the last tag (`<chart>-<version>`), classifies commits, and opens/updates a Release PR: `release/<chart>-vX.Y.Z`.
 4. The Release PR updates `Chart.yaml`, prepends a new changelog section (generated via conventional-changelog), and regenerates README from annotated values.
 5. Maintainers can apply labels to adjust or defer release:
