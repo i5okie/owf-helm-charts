@@ -2,6 +2,9 @@
 # Critical for devcontainer compatibility on Windows
 *.sh text eol=lf
 
+# Environment files sourced by bash must use LF
+*.env text eol=lf
+
 # Ensure workflow files use LF
 *.yaml text eol=lf
 *.yml text eol=lf
