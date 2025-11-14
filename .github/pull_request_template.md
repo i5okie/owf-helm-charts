@@ -18,7 +18,7 @@ Examples: `feat(acapy): add configurable serviceAccount`, `fix(vc-authn-oidc): c
 - [ ] Values are annotated (`@param`) and README regenerates cleanly
   - Run: `make docs CHART=<chart-name>`
 - [ ] Added/updated `charts/<chart-name>/ci/*-values.yaml` if needed for `ct`
-- [ ] `make verify CHART=<chart-name>` passes locally
+- [ ] `make check CHART=<chart-name>` passes locally
 
 ### For new charts only:
 

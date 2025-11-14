@@ -6,7 +6,7 @@
 SHELL := /usr/bin/env bash
 .DEFAULT_GOAL := help
 .PHONY: help tools-check lint ct-lint ct-install local-test docs changelog release-pr kind-delete _ensure-chart _cluster-name \
-	sync-versions shell-lint shell-format shell-format-check fmt yamllint check verify test install-cli uninstall-cli act-pr actionlint act-release-publish
+	sync-versions shell-lint shell-format shell-format-check fmt yamllint check test install-cli uninstall-cli act-pr actionlint act-release-publish
 
 # -------------------------------------------------------------------------------------------------
 # Core variables
@@ -151,5 +151,3 @@ check: _ensure-chart ## Run all validations for CHART (lint suite + formatting)
 	echo "[check] helm lint"; $(MAKE) lint CHART=$(CHART) || exit 1; \
 	if [ -f .github/ct.yaml ]; then echo "[check] ct lint"; $(MAKE) ct-lint CHART=$(CHART) || exit 1; else echo "[check] skip ct-lint (no .github/ct.yaml)"; fi; \
 	echo "[check] done"
-
-verify: check ## Alias for 'make check' (deprecated, will be removed)
