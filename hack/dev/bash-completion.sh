@@ -15,12 +15,12 @@ _complete_chart_cmd() {
   prev="${COMP_WORDS[COMP_CWORD - 1]}"
   case "${prev}" in
     chart-release-pr | chart-docs | chart-changelog | chart-ct-install)
-      # shellcheck disable=SC2312
-      mapfile -t COMPREPLY < <(compgen -W "$(_owf_chart_names)" -- "${cur}")
+      local chart_list
+      chart_list=$(_owf_chart_names)
+      mapfile -t COMPREPLY < <(compgen -W "${chart_list}" -- "${cur}")
       return 0
       ;;
     --base)
-      # shellcheck disable=SC2312
       mapfile -t COMPREPLY < <(compgen -W "main" -- "${cur}")
       return 0
       ;;
@@ -28,8 +28,9 @@ _complete_chart_cmd() {
   esac
   # First arg
   if [[ ${COMP_CWORD} -eq 1 ]]; then
-    # shellcheck disable=SC2312
-    mapfile -t COMPREPLY < <(compgen -W "$(_owf_chart_names)" -- "${cur}")
+    local chart_list
+    chart_list=$(_owf_chart_names)
+    mapfile -t COMPREPLY < <(compgen -W "${chart_list}" -- "${cur}")
   fi
 }
 
