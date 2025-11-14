@@ -32,6 +32,16 @@ fi
 echo "[post-create] Creating local helm repo cache directories..."
 mkdir -p /home/vscode/.cache/helm /home/vscode/.cache/ct
 
+echo "[post-create] Installing pre-commit hooks..."
+if [ -f /workspace/.pre-commit-config.yaml ]; then
+  cd /workspace || exit 1
+  pre-commit install --install-hooks || echo "[warn] pre-commit install failed (non-fatal)"
+  pre-commit install --hook-type commit-msg || echo "[warn] pre-commit commit-msg hook install failed (non-fatal)"
+  echo "[post-create] Pre-commit hooks installed successfully"
+else
+  echo "[warn] No .pre-commit-config.yaml found; skipping pre-commit setup"
+fi
+
 # Check mount status and provide helpful warnings
 echo "[post-create] Checking mount status..."
 if [ ! -e /home/vscode/.gitconfig ]; then

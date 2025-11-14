@@ -22,7 +22,7 @@ ENV PATH=/usr/local/bin:$PATH
 SHELL ["/bin/bash", "-c"]
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    ca-certificates curl git jq bash make tar gzip xz-utils gnupg lsb-release openssh-client yamllint \
+    ca-certificates curl git jq bash make tar gzip xz-utils gnupg lsb-release openssh-client yamllint python3-pip python3-venv \
     && rm -rf /var/lib/apt/lists/*
 
 # Create non-root user (UID 1000 to align with vscode) with passwordless sudo
@@ -81,11 +81,13 @@ RUN set -euo pipefail 2>/dev/null || set -euo || set -eu; \
     fetch https://nodejs.org/dist/v${NODE_VERSION}/node-v${NODE_VERSION}-linux-${NODE_ARCH}.tar.xz node.tar.xz; \
     tar -xJf node.tar.xz --strip-components=1 -C /usr/local || { echo 'node extract failed'; exit 27; }; rm node.tar.xz; node --version; npm --version; \
     npm install -g conventional-changelog-cli@${CONVENTIONAL_CHANGELOG_CLI_VERSION} conventional-changelog-conventionalcommits @bitnami/readme-generator-for-helm@${BITNAMI_README_GENERATOR_VERSION} || { echo 'npm global installs failed'; exit 28; }; \
+    # pre-commit
+    python3 -m pip install --break-system-packages pre-commit==${PRECOMMIT_VERSION} || { echo 'pre-commit install failed'; exit 29; }; \
     # shellcheck
     fetch https://github.com/koalaman/shellcheck/releases/download/v${SHELLCHECK_VERSION}/shellcheck-v${SHELLCHECK_VERSION}.linux.${SHELLCHECK_ARCH}.tar.xz shellcheck.tar.xz; \
-    tar -xJf shellcheck.tar.xz shellcheck-v${SHELLCHECK_VERSION}/shellcheck || { echo 'shellcheck untar failed'; exit 29; }; mv shellcheck-v${SHELLCHECK_VERSION}/shellcheck /usr/local/bin/shellcheck; rm -rf shellcheck.tar.xz shellcheck-v${SHELLCHECK_VERSION}; shellcheck --version | head -2; \
+    tar -xJf shellcheck.tar.xz shellcheck-v${SHELLCHECK_VERSION}/shellcheck || { echo 'shellcheck untar failed'; exit 30; }; mv shellcheck-v${SHELLCHECK_VERSION}/shellcheck /usr/local/bin/shellcheck; rm -rf shellcheck.tar.xz shellcheck-v${SHELLCHECK_VERSION}; shellcheck --version | head -2; \
     # shfmt
-    fetch https://github.com/mvdan/sh/releases/download/v${SHFMT_VERSION}/shfmt_v${SHFMT_VERSION}_linux_${SHFMT_ARCH} /usr/local/bin/shfmt; chmod +x /usr/local/bin/shfmt; shfmt --version || { echo 'shfmt failed'; exit 30; }; set +x
+    fetch https://github.com/mvdan/sh/releases/download/v${SHFMT_VERSION}/shfmt_v${SHFMT_VERSION}_linux_${SHFMT_ARCH} /usr/local/bin/shfmt; chmod +x /usr/local/bin/shfmt; shfmt --version || { echo 'shfmt failed'; exit 31; }; set +x
 
 # Install local workflow/test tools (act, actionlint) using pins
 RUN set -euo pipefail; \
@@ -98,7 +100,7 @@ RUN set -euo pipefail; \
     *) echo "Unsupported architecture: $raw_arch" >&2; exit 1 ;; \
     esac; \
     echo "== Installing local workflow tools =="; set -x; \
-    curl -fsSL -o /tmp/actionlint.tgz https://github.com/rhysd/actionlint/releases/download/v${ACTIONLINT_VERSION}/actionlint_${ACTIONLINT_VERSION}_linux_${ARCH}.tar.gz; \
+    curl -fsSL -o /tmp/actionlint.tgz https://github.com/rhysd/actionlint/releases/download/v${ACTIONLINT_VERSION}/actionlint_${ACTIONLINT_VERSION}_linux_${ARCH}.tar.gz || { echo 'actionlint download failed'; exit 32; }; \
     tar -xzf /tmp/actionlint.tgz -C /tmp actionlint; sudo mv /tmp/actionlint /usr/local/bin/actionlint; actionlint --version
 
 # Cache dirs (persisted across container restarts if volume mapped)
@@ -120,6 +122,7 @@ printf '%-18s %s\n' NODE "$(node --version)"
 printf '%-18s %s\n' NPM "$(npm --version)"
 printf '%-18s %s\n' SHELLCHECK "$(shellcheck --version 2>/dev/null | awk '/version:/ {print $2}')"
 printf '%-18s %s\n' SHFMT "$(shfmt --version 2>/dev/null | sed 's/^v//')"
+printf '%-18s %s\n' PRE_COMMIT "$(pre-commit --version 2>/dev/null | awk '{print $2}')"
 EOF
 
 USER vscode

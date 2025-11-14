@@ -40,9 +40,17 @@
   ],
   "mounts": [
     // Read-only kubeconfig from host (if exists)
-    "source=${localEnv:HOME}/.kube,target=/home/vscode/.kube,readonly,type=bind",
+    // Note: Commented out by default to avoid mount errors when files don't exist.
+    // Uncomment and adjust path for your OS if needed:
+    // Unix/macOS: "source=${localEnv:HOME}/.kube,target=/home/vscode/.kube,readonly,type=bind,consistency=cached",
+    // Windows:    "source=${localEnv:USERPROFILE}/.kube,target=/home/vscode/.kube,readonly,type=bind,consistency=cached",
+    
     // Git global config (read-only)
-    "source=${localEnv:HOME}/.gitconfig,target=/home/vscode/.gitconfig,readonly,type=bind"
+    // Commented out by default to avoid mount errors when file doesn't exist.
+    // Uncomment and adjust path for your OS if needed:
+    // Unix/macOS: "source=${localEnv:HOME}/.gitconfig,target=/home/vscode/.gitconfig,readonly,type=bind,consistency=cached",
+    // Windows:    "source=${localEnv:USERPROFILE}/.gitconfig,target=/home/vscode/.gitconfig,readonly,type=bind,consistency=cached"
+    
     // NOTE: SSH agent socket mount removed because it triggered invalid bind errors on macOS when SSH_AUTH_SOCK points to transient /private/tmp launchd paths.
     // To re-enable safely, set DEVCONTAINER_SSH_SOCK to a stable path and add:
     // "source=${localEnv:DEVCONTAINER_SSH_SOCK},target=/ssh-agent,type=bind"
