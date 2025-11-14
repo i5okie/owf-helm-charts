@@ -17,13 +17,18 @@ ARG DEBIAN_FRONTEND=noninteractive
 COPY hack/versions.env /tmp/versions.env
 
 ENV PATH=/usr/local/bin:$PATH
+ENV LANG=en_US.UTF-8
+ENV LC_ALL=en_US.UTF-8
 
 # Use bash for subsequent RUN instructions (dash /bin/sh lacks 'pipefail').
 SHELL ["/bin/bash", "-c"]
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    ca-certificates curl git jq bash make tar gzip xz-utils gnupg lsb-release openssh-client yamllint python3-pip python3-venv \
-    && rm -rf /var/lib/apt/lists/*
+    ca-certificates curl git jq bash make tar gzip xz-utils gnupg lsb-release openssh-client yamllint python3-pip python3-venv locales \
+    && rm -rf /var/lib/apt/lists/* \
+    && echo "en_US.UTF-8 UTF-8" > /etc/locale.gen \
+    && locale-gen en_US.UTF-8 \
+    && update-locale LANG=en_US.UTF-8 LC_ALL=en_US.UTF-8
 
 # Create non-root user (UID 1000 to align with vscode) with passwordless sudo
 RUN useradd -m -s /bin/bash vscode && \
