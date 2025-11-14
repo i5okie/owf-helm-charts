@@ -27,6 +27,30 @@ To maintain clarity, consistency, and automation reliability, please follow thes
   - New scripts should source the shared logging helpers `hack/lib/log.sh` and use `log_info`, `log_warn`, `log_error`, `die` for consistent output.
   - Tool versions are pinned in `hack/versions.env` and validated by `hack/dev/tools-check.sh`. Pins cover helm, kubectl, kind, yq, jq, shellcheck, shfmt, helm-docs, yamllint, Node-based generators, ct, and chart-releaser.
 
+## Pre-commit Hooks (Optional)
+
+Pre-commit hooks help catch common issues before pushing to CI. Setup is optional but recommended:
+
+```bash
+# Install pre-commit (if not already installed)
+pip install pre-commit
+
+# Enable pre-commit checks
+pre-commit install
+
+# Enable commit message validation
+pre-commit install --hook-type commit-msg
+
+# Run manually on all files
+pre-commit run --all-files
+```
+
+The hooks validate:
+- Commit messages follow Conventional Commits (feat, fix, docs, etc.)
+- YAML syntax in `values.yaml` and `Chart.yaml`
+- Shell scripts in `hack/` (shellcheck)
+- File hygiene (trailing whitespace, merge conflicts)
+
 ## CI / Test-Install Values (Kind-friendly)
 
 - To supply CI-only overrides without changing chart defaults, add one or more files under:
@@ -75,31 +99,17 @@ You can run the Release‑PR workflow on demand via the Actions tab:
 
 - Actions → "Generate Release PRs" → Run workflow
 - Inputs:
-  - `dry_run` (default `true`).
-  - `true`: compute/filter charts and print actions without pushing branches or opening PRs.
-  - `false`: push `release/<chart>-vX.Y.Z` branches and open/update PRs for all charts that require a bump.
   - `chart` (optional): limit processing to a single chart (e.g., `acapy`). If provided, the same deterministic bump/filtering is applied but scoped to `charts/<chart>`.
 
 Notes:
 - The workflow is idempotent and safe to re‑run; concurrency guards prevent per‑chart races.
 - Manual runs are restricted to repository maintainers/admins.
-- Local dry‑run of the publish workflow is available: `make act-release-publish`.
 - For Release‑PR logic, prefer the local helper script which mirrors CI without remote pushes:
 
 ```bash
 hack/chart/release-pr.sh <chart> --no-pr
 # e.g.,
 hack/chart/release-pr.sh acapy --no-pr
-```
-
-```bash
-act workflow_dispatch \
-  -W .github/workflows/release-pr.yaml \
-  -j release-pr \
-  -s GITHUB_TOKEN=dummy \
-  --input dry_run=true \
-  --input chart=acapy \
-  --container-architecture linux/amd64
 ```
 
 ### Local helper: release-pr.sh (for maintainers)
@@ -122,22 +132,6 @@ For convenience when testing releases locally, a helper script mirrors the CI Re
 Notes:
 - CI does not call this script; it calls `hack/release/classify_commits.sh`, `hack/release/next_version.sh`, `hack/release/update_chart_version.sh`, `hack/chart/docs.sh`, and `hack/chart/changelog.sh` directly.
 - Do not hand‑edit `CHANGELOG.md` or README in Release PRs; they are generated.
-
-### Local workflow testing (optional)
-
-You can validate workflow logic locally using `act` without pushing:
-
-- Install `act`: https://github.com/nektos/act
-- Override chart detection using `DETECT_CHART=<chart>` (the composite `detect-chart` action respects this).
-- Use Make targets:
-  - `make act-pr CHART=<chart>`
-  - `make act-release-publish` (dry-run the Publish workflow)
-
-Direct usage example:
-
-```
-DETECT_CHART=acapy act pull_request -j lint-test -W .github/workflows/ci-cd.yaml --container-architecture linux/amd64
-```
 
 ### Notes
 - Prefer small, focused PRs.

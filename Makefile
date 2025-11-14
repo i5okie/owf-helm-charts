@@ -153,27 +153,3 @@ check: _ensure-chart ## Run all validations for CHART (lint suite + formatting)
 	echo "[check] done"
 
 verify: check ## Alias for 'make check' (deprecated, will be removed)
-
-# -------------------------------------------------------------------------------------------------
-# Local workflow testing (optional; requires 'act')
-# -------------------------------------------------------------------------------------------------
-act-pr: ## Run PR workflow locally with act (override chart via DETECT_CHART=acapy)
-	@if command -v act >/dev/null 2>&1; then \
-	  DETECT_CHART=$(CHART) act pull_request -j lint-test -W .github/workflows/ci-cd.yaml --container-architecture linux/amd64; \
-	else \
-	  echo "act not found on PATH. In the devcontainer, it's preinstalled; try rebuilding the container."; exit 1; \
-	fi
-
-
-act-release-publish: ## Dry-run the Publish workflow locally
-	@if command -v act >/dev/null 2>&1; then \
-	  act workflow_dispatch -W .github/workflows/release-publish.yaml -j publish -s GITHUB_TOKEN=dummy --input dry_run=true --container-architecture linux/amd64; \
-	else \
-	  echo "act not found on PATH. In the devcontainer, it's preinstalled; try rebuilding the container."; exit 1; \
-	fi
-
-install-act: ## (deprecated) act is installed via devcontainer pins
-	@echo "act is installed via devcontainer. Rebuild the container to (re)install pinned version."
-
-actionlint: ## Run actionlint against workflows
-	@actionlint -color
