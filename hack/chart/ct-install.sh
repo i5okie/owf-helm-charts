@@ -28,7 +28,7 @@ if ! kind create cluster --name "${cluster}" --wait 60s; then
   echo "[error] Failed to create cluster" >&2
   exit 1
 fi
-kind export kubeconfig --name "${cluster}" >/dev/null 2>&1 || true
+kind export kubeconfig --name "${cluster}" > /dev/null 2>&1 || true
 trap 'echo "[info] Deleting cluster ${cluster}"; kind delete cluster --name "${cluster}" >/dev/null 2>&1 || true' EXIT
 
 set +e

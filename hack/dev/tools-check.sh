@@ -14,6 +14,7 @@ if [[ ! -f "${PINS_FILE}" ]]; then
   exit 1
 fi
 
+# SC1090: Dynamic source of version pins; path is validated above
 # shellcheck disable=SC1090
 source "${PINS_FILE}"
 
@@ -25,10 +26,11 @@ ver_norm() { printf '%s' "$1" | sed -E 's/^v//; s/[^0-9.].*$//'; }
 
 ver_ge() { # return 0 if $1 >= $2
   local a b IFS=.
-  # shellcheck disable=SC2312
-  read -r -a a <<< "$(ver_norm "$1")"
-  # shellcheck disable=SC2312
-  read -r -a b <<< "$(ver_norm "$2")"
+  local norm1 norm2
+  norm1=$(ver_norm "$1")
+  norm2=$(ver_norm "$2")
+  read -r -a a <<< "${norm1}"
+  read -r -a b <<< "${norm2}"
   for i in 0 1 2; do
     local ai=${a[${i}]:-0} bi=${b[${i}]:-0}
     if ((ai > bi)); then return 0; fi
@@ -59,7 +61,6 @@ check_min() { # have, min, name
     FAIL+=1
     return
   fi
-  # shellcheck disable=SC2310
   if ver_ge "${have}" "${min}"; then
     printf '[OK]      %s %s (>= %s)\n' "${name}" "${have}" "${min}"
   else
@@ -68,10 +69,12 @@ check_min() { # have, min, name
   fi
 }
 
-trim_v() { sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//' -e 's/^v//'; }
+trim_v() {
+  sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//' -e 's/^v//'
+  return 0
+}
 
 # Collect versions (guard each command)
-# shellcheck disable=SC2310
 helm_ver=$(helm version --short 2> /dev/null | cut -d'+' -f1 | trim_v || true)
 
 if command -v ct > /dev/null 2>&1; then
@@ -92,33 +95,18 @@ else
   cr_ver=""
 fi
 
-# shellcheck disable=SC2310
 kubectl_ver=$(kubectl version --client --output=json 2> /dev/null | jq -r '.clientVersion.gitVersion' 2> /dev/null | trim_v || true)
-# shellcheck disable=SC2310
 kind_ver=$(kind version 2> /dev/null | awk '{print $2}' | trim_v || true)
-# shellcheck disable=SC2310
 yq_ver=$(yq --version 2> /dev/null | awk '{print $4}' | trim_v || true)
-# shellcheck disable=SC2310
 jq_ver=$(jq --version 2> /dev/null | sed 's/^jq-//' | trim_v || true)
-# shellcheck disable=SC2310
 yamllint_ver=$(yamllint --version 2> /dev/null | awk '{print $2}' | trim_v || true)
-# shellcheck disable=SC2310
 git_ver=$(git --version 2> /dev/null | awk '{print $3}' | trim_v || true)
-# shellcheck disable=SC2310
 cc_ver=$(conventional-changelog --version 2> /dev/null | trim_v || true)
-# shellcheck disable=SC2310
 readme_gen_ver=$(readme-generator --version 2> /dev/null | grep -Eo '[0-9]+(\.[0-9]+){1,3}' | head -n1 | trim_v || true)
-# shellcheck disable=SC2310
 node_ver=$(node --version 2> /dev/null | trim_v || true)
-# shellcheck disable=SC2310
 shellcheck_ver=$(shellcheck --version 2> /dev/null | awk '/version:/ {print $2}' | trim_v || true)
-# shellcheck disable=SC2310
 shfmt_ver=$(shfmt --version 2> /dev/null | trim_v || true)
-# shellcheck disable=SC2310
 helm_docs_ver=$(helm-docs --version 2> /dev/null | grep -Eo '[0-9]+(\.[0-9]+){1,3}' | head -n1 | trim_v || true)
-# shellcheck disable=SC2310
-act_ver=$(act --version 2> /dev/null | awk '{print $3}' | trim_v || true)
-# shellcheck disable=SC2310
 actionlint_ver=$(actionlint --version 2> /dev/null | grep -Eo '[0-9]+(\.[0-9]+){1,3}' | head -n1 | trim_v || true)
 
 print_header

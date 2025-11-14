@@ -25,8 +25,8 @@ echo "[info] Building chart dependencies for ${CHART_NAME}"
 (
   cd "${ROOT_DIR}/charts"
   # Add repos from Chart.yaml dependencies deterministically
-  # shellcheck disable=SC2312
-  mapfile -t repos < <(yq '.dependencies // [] | .[] | .repository' "${CHART_NAME}/Chart.yaml" | sed '/^null$/d' | sort -u)
+  repo_list=$(yq '.dependencies // [] | .[] | .repository' "${CHART_NAME}/Chart.yaml" | sed '/^null$/d' | sort -u)
+  mapfile -t repos <<< "${repo_list}"
   for repo in "${repos[@]:-}"; do
     name="$(sed -E 's|https?://||;s|/|_|g;s|[^a-zA-Z0-9_-]||g' <<< "${repo}")"
     echo "  - helm repo add ${name} ${repo}"
