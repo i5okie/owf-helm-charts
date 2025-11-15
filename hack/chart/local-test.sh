@@ -36,11 +36,8 @@ echo "[info] Building chart dependencies for ${CHART_NAME}"
   helm dependency build "${CHART_NAME}"
 )
 
-echo "[info] Helm lint"
-helm lint "${CHART_DIR}"
-
 if [[ -f "${ROOT_DIR}/.github/ct.yaml" ]]; then
-  echo "[info] ct lint"
+  echo "[info] ct lint (helm lint + yamllint + maintainers + version)"
   ct lint --charts "${CHART_DIR}" --config "${ROOT_DIR}/.github/ct.yaml"
 else
   echo "[warn] skipping ct lint (no .github/ct.yaml)"
@@ -52,4 +49,4 @@ helm template "${CHART_DIR}" > /dev/null
 echo "[info] ct install in ephemeral kind cluster"
 "${SCRIPT_DIR}/ct-install.sh" "${CHART_NAME}"
 
-echo "[info] local CI-like test completed successfully for ${CHART_NAME}"
+echo "[info] local test completed successfully for ${CHART_NAME}"

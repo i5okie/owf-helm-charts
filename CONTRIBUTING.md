@@ -27,6 +27,63 @@ To maintain clarity, consistency, and automation reliability, please follow thes
   - New scripts should source the shared logging helpers `hack/lib/log.sh` and use `log_info`, `log_warn`, `log_error`, `die` for consistent output.
   - Tool versions are pinned in `hack/versions.env` and validated by `hack/dev/tools-check.sh`. Pins cover helm, kubectl, kind, yq, jq, shellcheck, shfmt, helm-docs, yamllint, Node-based generators, ct, and chart-releaser.
 
+## Testing & Validation
+
+All testing commands require `CHART=<name>` parameter (e.g., `acapy`, `vc-authn-oidc`, `endorser-service`).
+
+### Quick Reference
+
+```bash
+make check CHART=acapy           # Fast (~30s): lint + docs validation
+make test CHART=acapy            # Full (~5m): deps + lint + template + install
+make lint CHART=acapy            # Lint only (helm + yaml + maintainers + version)
+make install CHART=acapy         # Install test only (requires kind cluster)
+make docs CHART=acapy            # Regenerate/validate README
+```
+
+### Recommended Workflow
+
+1. **During development** - Run `make check CHART=<name>` frequently for fast feedback:
+   - Validates chart structure with `ct lint` (includes helm lint, yamllint, maintainers, version checks)
+   - Ensures README is up-to-date with values.yaml annotations
+   - Takes ~30 seconds, no cluster required
+
+2. **Before opening PR** - Run `make test CHART=<name>` for full validation:
+   - Builds chart dependencies
+   - Runs all linting checks
+   - Smoke tests template rendering
+   - Installs chart in ephemeral kind cluster
+   - Takes ~3-5 minutes (cluster creation is slow)
+
+3. **Debugging install issues** - Use `make install CHART=<name>`:
+   - Skips linting (faster iteration)
+   - Only runs the kind cluster install test
+   - Useful when linting passes but install fails
+
+### What Each Target Does
+
+- **`make check`**: Pre-PR sanity check (fast)
+  - `ct lint` - validates chart structure, YAML, maintainers, version increment
+  - `make docs` - ensures README matches values.yaml
+
+- **`make test`**: Full CI-like test suite (slow but comprehensive)
+  - Builds Helm dependencies
+  - Runs `ct lint`
+  - Renders templates with `helm template` (smoke test)
+  - Creates kind cluster and runs `ct install`
+  - Mirrors CI workflow exactly
+
+- **`make lint`**: Just the chart-testing lint
+  - Runs `helm lint` (chart structure validation)
+  - Runs `yamllint` (YAML syntax validation)
+  - Validates maintainers in Chart.yaml
+  - Checks version increment (can fail during development - this is expected)
+
+- **`make install`**: Just the install test
+  - Creates ephemeral kind cluster
+  - Installs chart using `ct install`
+  - Uses `ci/*-values.yaml` files if present
+
 ## Pre-commit Hooks (Optional)
 
 Pre-commit hooks help catch common issues before pushing to CI. Setup is optional but recommended:

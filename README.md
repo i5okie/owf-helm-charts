@@ -32,20 +32,23 @@ All commands require `CHART=<name>` (e.g., `acapy`, `vc-authn-oidc`).
 
 ```bash
 # Testing & Validation
-make check CHART=acapy           # Run all linting and checks
-make local-test CHART=acapy      # Full CI-like test (lint + install)
-make ct-install CHART=acapy      # Install test in kind cluster
+make check CHART=acapy           # Fast (~30s): lint + docs validation (pre-PR)
+make test CHART=acapy            # Full (~5m): deps + lint + template + install in kind
+make lint CHART=acapy            # Chart linting (helm + yaml + maintainers + version)
+make install CHART=acapy         # Install test only (in kind cluster)
 
 # Documentation
-make docs CHART=acapy            # Regenerate README from values.yaml
-
-# Formatting
-make shell-format                # Format shell scripts
+make docs CHART=acapy            # Regenerate README from values.yaml annotations
 
 # Tools
-make tools-check                 # Verify tool versions
+make tools-check                 # Verify tool versions match pins
 make help                        # Show all available targets
 ```
+
+**Typical workflow:**
+
+- Use `make check` during development for fast feedback
+- Run `make test` before opening PR for full validation
 
 ### Contributing
 
@@ -54,4 +57,4 @@ See [CONTRIBUTING.md](CONTRIBUTING.md) for detailed guidelines. Key requirements
 - One chart per PR
 - Use Conventional Commits format (`feat:`, `fix:`, etc.)
 - Run `make check CHART=<name>` before submitting
-- Regenerate docs with `make docs CHART=<name>` when changing values
+- Validate docs with `make docs CHART=<name>` when changing values
