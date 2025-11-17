@@ -185,7 +185,13 @@ jobs:
 
             # Generate CHANGELOG
             printf '{"name":"%s-chart","version":"%s"}' "${chart}" "$next_version" > package.json
-            npx conventional-changelog -p conventionalcommits --tag-prefix "${chart}-" --commit-path "charts/${chart}" -i "charts/${chart}/CHANGELOG.md" -s || true
+            if [ -n "${last_tag}" ]; then
+              # Only generate changelog for commits since last tag
+              npx conventional-changelog -p conventionalcommits --tag-prefix "${chart}-" --commit-path "charts/${chart}" --release-count 1 -i "charts/${chart}/CHANGELOG.md" -s
+            else
+              # First release - generate full changelog
+              npx conventional-changelog -p conventionalcommits --tag-prefix "${chart}-" --commit-path "charts/${chart}" -i "charts/${chart}/CHANGELOG.md" -s
+            fi
             rm package.json
 
             # Detect and generate README with appropriate tool
@@ -239,7 +245,6 @@ jobs:
 
             # Open or update PR
             existing_pr_number=$(gh pr list --state open --head "${branch}" --json number --jq '.[0].number' || echo "")
-            compare_url="https://github.com/${{ github.repository }}/compare/${last_tag:-main}...${branch}"
 
             # Create PR body using heredoc
             pr_body=$(cat <<EOF
@@ -250,7 +255,6 @@ jobs:
           - **Current version:** ${current_version}
           - **Next version:** ${next_version}
           - **Bump type:** ${final_bump}
-          - **Compare:** ${compare_url}
 
           ## Label Overrides
           You can override the version bump by adding labels:

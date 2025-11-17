@@ -135,3 +135,9 @@ jobs:
             --index-path .cr-index/index.yaml \
             --package-path .cr-release-packages \
             --push
+
+      - name: Delete release branch
+        if: success()
+        run: |
+          git push origin --delete "${PR_HEAD_REF}"
+          echo "✅ Deleted release branch: ${PR_HEAD_REF}"
