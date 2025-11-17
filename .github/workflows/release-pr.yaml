@@ -136,6 +136,13 @@ jobs:
             echo "Current version: ${current_version}"
             echo "Automatic bump level: ${auto_bump}"
 
+            # Skip if no commits since last tag
+            if [ "${HAS_COMMITS}" != "true" ]; then
+              echo "::notice::No new commits for ${chart} since ${last_tag:-initial}, skipping release"
+              echo "::endgroup::"
+              continue
+            fi
+
             # Check for label overrides on existing PRs
             override=""
             skip="false"
