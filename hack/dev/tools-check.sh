@@ -9,9 +9,11 @@ IFS=$'\n\t'
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 PINS_FILE="${ROOT_DIR}/versions.env"
 
+# shellcheck source=../lib/log.sh
+source "${ROOT_DIR}/lib/log.sh"
+
 if [[ ! -f "${PINS_FILE}" ]]; then
-  echo "[error] versions file missing: ${PINS_FILE}" >&2
-  exit 1
+  die "versions file missing: ${PINS_FILE}"
 fi
 
 # SC1090: Dynamic source of version pins; path is validated above
@@ -107,7 +109,6 @@ node_ver=$(node --version 2> /dev/null | trim_v || true)
 shellcheck_ver=$(shellcheck --version 2> /dev/null | awk '/version:/ {print $2}' | trim_v || true)
 shfmt_ver=$(shfmt --version 2> /dev/null | trim_v || true)
 helm_docs_ver=$(helm-docs --version 2> /dev/null | grep -Eo '[0-9]+(\.[0-9]+){1,3}' | head -n1 | trim_v || true)
-actionlint_ver=$(actionlint --version 2> /dev/null | grep -Eo '[0-9]+(\.[0-9]+){1,3}' | head -n1 | trim_v || true)
 
 print_header
 check "${helm_ver}" "${HELM_VERSION:-}" HELM
@@ -128,9 +129,6 @@ fi
 if command -v helm-docs > /dev/null 2>&1; then
   check "${helm_docs_ver}" "${HELM_DOCS_VERSION:-}" HELM_DOCS
 fi
-if command -v actionlint > /dev/null 2>&1; then
-  check "${actionlint_ver}" "${ACTIONLINT_VERSION:-}" ACTIONLINT
-fi
 
 # Node-based generators (if globally installed)
 if command -v conventional-changelog > /dev/null 2>&1; then
@@ -145,9 +143,8 @@ check_min "${git_ver}" "${GIT_MIN_VERSION:-2.40.0}" GIT
 
 if ((FAIL > 0)); then
   echo
-  echo "Version drift detected. Update hack/versions.env or install matching versions." >&2
-  exit 1
+  die "Version drift detected. Update hack/versions.env or install matching versions."
 fi
 
 echo
-echo "All pinned tool versions match."
+log_ok "All pinned tool versions match."

@@ -94,19 +94,6 @@ RUN set -euo pipefail 2>/dev/null || set -euo || set -eu; \
     # shfmt
     fetch https://github.com/mvdan/sh/releases/download/v${SHFMT_VERSION}/shfmt_v${SHFMT_VERSION}_linux_${SHFMT_ARCH} /usr/local/bin/shfmt; chmod +x /usr/local/bin/shfmt; shfmt --version || { echo 'shfmt failed'; exit 31; }; set +x
 
-# Install local workflow/test tools (act, actionlint) using pins
-RUN set -euo pipefail; \
-    . /tmp/versions.env; \
-    raw_arch="${TARGETARCH:-$(uname -m)}"; \
-    if [ "$FORCE_AMD64" = "1" ]; then raw_arch=amd64; fi; \
-    case "$raw_arch" in \
-    x86_64|amd64) ARCH=amd64 ;; \
-    aarch64|arm64) ARCH=arm64 ;; \
-    *) echo "Unsupported architecture: $raw_arch" >&2; exit 1 ;; \
-    esac; \
-    echo "== Installing local workflow tools =="; set -x; \
-    curl -fsSL -o /tmp/actionlint.tgz https://github.com/rhysd/actionlint/releases/download/v${ACTIONLINT_VERSION}/actionlint_${ACTIONLINT_VERSION}_linux_${ARCH}.tar.gz || { echo 'actionlint download failed'; exit 32; }; \
-    tar -xzf /tmp/actionlint.tgz -C /tmp actionlint; sudo mv /tmp/actionlint /usr/local/bin/actionlint; actionlint --version
 
 # Cache dirs (persisted across container restarts if volume mapped)
 RUN mkdir -p /home/vscode/.cache/helm /home/vscode/.cache/ct && chown -R vscode:vscode /home/vscode/.cache

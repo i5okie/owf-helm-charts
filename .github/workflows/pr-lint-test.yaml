@@ -1,4 +1,4 @@
-name: Helm Chart CI/CD
+name: Pull Request - Lint and Test
 
 on:
   pull_request:

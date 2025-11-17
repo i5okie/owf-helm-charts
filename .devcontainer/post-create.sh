@@ -10,9 +10,6 @@ if [ -f package.json ]; then
   npm install --no-audit --no-fund
 fi
 
-echo "[post-create] Install CLI shims and persist prompt/completion in ~/.bashrc."
-bash hack/dev/install-cli.sh || true
-
 # Ensure PATH includes common user-local/bin locations for shims (idempotent)
 if ! grep -q 'export PATH="$HOME/.local/bin:$PATH"' /home/vscode/.bashrc 2>/dev/null; then
   echo '[ -d "$HOME/.local/bin" ] && export PATH="$HOME/.local/bin:$PATH"' >> /home/vscode/.bashrc
@@ -21,12 +18,9 @@ if ! grep -q 'export PATH="/workspace/.bin:$PATH"' /home/vscode/.bashrc 2>/dev/n
   echo '[ -d "/workspace/.bin" ] && export PATH="/workspace/.bin:$PATH"' >> /home/vscode/.bashrc
 fi
 
-# Persist prompt & completion sourcing (idempotent)
+# Persist prompt sourcing (idempotent)
 if ! grep -q 'hack/dev/bash-prompt.sh' /home/vscode/.bashrc 2>/dev/null; then
   echo '. /workspace/hack/dev/bash-prompt.sh' >> /home/vscode/.bashrc
-fi
-if ! grep -q 'hack/dev/bash-completion.sh' /home/vscode/.bashrc 2>/dev/null; then
-  echo '. /workspace/hack/dev/bash-completion.sh' >> /home/vscode/.bashrc
 fi
 
 echo "[post-create] Creating local helm repo cache directories..."

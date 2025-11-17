@@ -9,9 +9,8 @@
 // Update procedure when bumping tooling:
 //   1. Edit hack/versions.env
 //   2. Rebuild container (Dev Containers: Rebuild) – build args propagate automatically
-//   3. Run `make tools-check` (must PASS) – CI should use same pins
+//   3. Run `make tools-check`
 //
-// NOTE: Comments are allowed (JSONC). Remove excessive comments if tooling parses pure JSON only.
 {
   "name": "owf-helm-charts-dev",
   "build": {
@@ -44,16 +43,12 @@
     // Uncomment and adjust path for your OS if needed:
     // Unix/macOS: "source=${localEnv:HOME}/.kube,target=/home/vscode/.kube,readonly,type=bind,consistency=cached",
     // Windows:    "source=${localEnv:USERPROFILE}/.kube,target=/home/vscode/.kube,readonly,type=bind,consistency=cached",
-    
+
     // Git global config (read-only)
     // Commented out by default to avoid mount errors when file doesn't exist.
     // Uncomment and adjust path for your OS if needed:
     // Unix/macOS: "source=${localEnv:HOME}/.gitconfig,target=/home/vscode/.gitconfig,readonly,type=bind,consistency=cached",
     // Windows:    "source=${localEnv:USERPROFILE}/.gitconfig,target=/home/vscode/.gitconfig,readonly,type=bind,consistency=cached"
-    
-    // NOTE: SSH agent socket mount removed because it triggered invalid bind errors on macOS when SSH_AUTH_SOCK points to transient /private/tmp launchd paths.
-    // To re-enable safely, set DEVCONTAINER_SSH_SOCK to a stable path and add:
-    // "source=${localEnv:DEVCONTAINER_SSH_SOCK},target=/ssh-agent,type=bind"
   ],
   "workspaceMount": "source=${localWorkspaceFolder},target=/workspace,type=bind",
   "workspaceFolder": "/workspace",
