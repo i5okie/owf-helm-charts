@@ -29,3 +29,13 @@ Examples: `feat(acapy): add configurable serviceAccount`, `fix(vc-authn-oidc): c
 ## Release notes (optional)
 
 User-facing notes worth highlighting in the CHANGELOG.
+
+---
+
+## For Maintainers (post-merge)
+
+**If this change should NOT trigger an immediate release:**
+
+When the automated Release PR is created (e.g., `release/acapy-vX.Y.Z`), add the `skip-release` label to defer publishing. This allows accumulating multiple changes before release.
+
+**Note:** The label is applied to the **Release PR**, not this PR.

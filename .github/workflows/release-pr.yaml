@@ -144,8 +144,8 @@ jobs:
               existing_pr=$(gh pr list --state open --head "release/${chart}-" --json number,labels --jq '.[0]' || echo "{}")
               if [ "$existing_pr" != "{}" ] && [ "$existing_pr" != "null" ]; then
                 labels=$(echo "$existing_pr" | jq -r '.labels[].name')
-                if echo "$labels" | grep -q "no-release"; then
-                  echo "::notice::Found 'no-release' label, skipping ${chart}"
+                if echo "$labels" | grep -q "skip-release"; then
+                  echo "::notice::Found 'skip-release' label, skipping ${chart}"
                   skip="true"
                 elif echo "$labels" | grep -q "bump:major"; then
                   override="major"
@@ -257,7 +257,7 @@ jobs:
           - \`bump:major\` - Force major version bump
           - \`bump:minor\` - Force minor version bump
           - \`bump:patch\` - Force patch version bump
-          - \`no-release\` - Skip this release
+          - \`skip-release\` - Defer this release (accumulate more changes)
 
           Merge this PR to publish the chart.
           EOF
